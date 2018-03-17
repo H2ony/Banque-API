@@ -26,12 +26,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.Date;
 import java.util.Locale;
+import javax.persistence.Column;
 
 @Entity
 public class Demande {
 
     @Id
-    private String id;
+    @Column(name="IDDEMANDE")
+    private String idDemande;
     private String nom;
     private String prenom;
     private String adresse;
@@ -44,7 +46,9 @@ public class Demande {
     
     @ElementCollection
     @JsonProperty("actions")
-    @OneToMany(mappedBy = "d")
+    //@OneToMany(cascade=CascadeType.ALL)
+    //@JoinColumn(name="demande_id",referencedColumnName="id")
+    @OneToMany(cascade=CascadeType.ALL,mappedBy="d")
     private Set<Action> actions = new HashSet();
    
    
@@ -53,7 +57,7 @@ public class Demande {
     }
 
     public Demande(String id, String nom, String prenom, String adresse, String dateNaiss, float revenu3DernAnnee, float mntCreditDem, int duree, String etat) {
-        this.id = id;
+        this.idDemande = id;
         this.nom = nom;
         this.prenom = prenom;
         this.adresse = adresse;
@@ -66,7 +70,7 @@ public class Demande {
     
     
     public Demande(Demande d) {
-        this.id = d.id;
+        this.idDemande = d.idDemande;
         this.nom = d.nom;
         this.prenom = d.prenom;
         this.adresse = d.adresse;
@@ -84,14 +88,14 @@ public class Demande {
 
     
     public String getId() {
-        return id;
+        return idDemande;
     }
     public String getIdDemande() {
-        return id;
+        return idDemande;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.idDemande = id;
     }
 
     public String getNom() {
@@ -154,11 +158,33 @@ public class Demande {
         return etat;
     }
     
+    public boolean addActions(Action a){
+        boolean trouve = false;
+        for (Action action : this.actions) {
+            
+            if(action.getNumero().equals(a.getNumero())){
+                trouve = true;
+            }
+            
+        }
+        
+        //Si une action n'est pas déja enregistrée, on la save
+        if(!trouve)
+            this.actions.add(a);
+        
+        return trouve;
+    }
+    
+    public void setEtat(String etat){
+        this.etat=etat;
+    }
+    
+    /*
     //Retourne la prochaine action à insèrer
     public Action nextState(){
         Action a = new Action();
         
-        a.setD(this);
+        
         //MARCHE PAS CA --> a.setDemande_id(this.id);
         
         Date aujourdhui = new Date();
@@ -170,6 +196,7 @@ public class Demande {
             case "[DEBUT]":
                 a=new Action("","2", "Vérification informations", "HOYET", "Revue en cours", shortDateFormat.format(aujourdhui));
                 this.etat = "[ETUDE]";
+                //this.actions.add(a);
             break;
                 
             //Par défaut, si la demande n'a pas d'état, on le met à début
@@ -181,6 +208,7 @@ public class Demande {
         }
         return a;
     }
+*/
 
     
 

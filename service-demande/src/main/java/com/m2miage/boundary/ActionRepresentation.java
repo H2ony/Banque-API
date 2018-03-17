@@ -56,66 +56,7 @@ public class ActionRepresentation {
                 .map(u -> new ResponseEntity<>(actionToResource(u, true), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-
-    // POST
-    @PostMapping
-    public ResponseEntity<?> saveAction(@RequestBody Action action) {
-        action.setId(UUID.randomUUID().toString());
-
-        
-        HttpHeaders responseHeaders = new HttpHeaders();
-        
-        
-        Action saved = irAction.save(action);
-        
-        responseHeaders.setLocation(linkTo(ActionRepresentation.class).slash(saved.getId()).toUri());
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
-        
-        
-       
-    }
     
-    // PUT
-    @PutMapping(value = "/{actionId}")
-    public ResponseEntity<?> updateInscription(@RequestBody Action action,
-            @PathVariable("actionId") String actionId) {
-        Optional<Action> body = Optional.ofNullable(action);
-        if (!body.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        if (!irAction.exists(actionId)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        action.setId(actionId);
-        Action result = irAction.save(action);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    // Accèpter une action
-    @PostMapping(value = "/{actionId}/accept")
-    public ResponseEntity<?> updateInscription(@PathVariable("actionId") String actionId) {
-        Action laAction;
-
-        //On va rechercher la action
-        laAction = irAction.findOne(actionId);
-            
-        if(laAction == null ){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        else {
-            //laAction.nextState();
-            return new ResponseEntity<>(actionToResource(laAction, true), HttpStatus.OK);
-        }
-        
-    }
-
-    // DELETE
-    @DeleteMapping(value = "/{actionId}")
-    public ResponseEntity<?> deleteInscription(@PathVariable String actionId) {
-        irAction.delete(actionId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
 
     private Resources<Resource<Action>> actionToResource(Iterable<Action> actions) {
         Link selfLink = linkTo(methodOn(ActionRepresentation.class).getAllAction())
@@ -138,23 +79,5 @@ public class ActionRepresentation {
             return new Resource<>(action, selfLink);
         }
     }
-    /*
-     public boolean isValidInsert(){
-        
-        if  ( this.adresse.isEmpty()
-                    && this.credit > 0
-                    && this.duree > 0
-                    && this.revenu > 0
-                    && this.etat.compareTo("")==0
-                    && this.nom.isEmpty()
-                    && this.prenom.isEmpty()
-                    && !this.datenaiss.isEmpty()
-            ){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-*/
+    
 }
