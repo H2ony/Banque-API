@@ -41,6 +41,7 @@ public class Demande {
     private float revenu;
     private float credit;
     private int duree;
+    @Column(name="ETAT")
     private String etat;
     
     

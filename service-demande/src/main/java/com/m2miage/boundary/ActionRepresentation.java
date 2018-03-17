@@ -41,14 +41,18 @@ public class ActionRepresentation {
       this.irAction = ir;
     }
 
-    // GET all
+    /**
+     * GET all
+     */ 
     @GetMapping
     public ResponseEntity<?> getAllAction() {
         Iterable<Action> allAction = irAction.findAll();
         return new ResponseEntity<>(actionToResource(allAction), HttpStatus.OK);
     }
 
-    // GET one
+    /**
+    *GET one
+    */
     @GetMapping(value = "/{actionId}")
     public ResponseEntity<?> getAction(@PathVariable("actionId") String id) {
         // ? = Resource<Action>

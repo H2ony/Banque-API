@@ -1,5 +1,6 @@
 package com.m2miage.boundary;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.m2miage.entity.Action;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +53,23 @@ public class DemandeRepresentation {
       this.irAction = irAction;
     }
 
-    // GET all
+    /** 
+     * 
+     * GET all
+     * @return 
+     */
     @GetMapping
     public ResponseEntity<?> getAllDemande() {
         Iterable<Demande> allDemande = irDemande.findAll();
         return new ResponseEntity<>(demandeToResource(allDemande), HttpStatus.OK);
     }
 
-    // GET one
+    /**
+     * 
+     *  GET one
+     * @param id
+     * @return 
+     */
     @GetMapping(value = "/{demandeId}")
     public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id) {
         // ? = Resource<Demande>
@@ -69,7 +79,11 @@ public class DemandeRepresentation {
     }
 
 
-    // POST
+    /**
+     *  POST
+     * @param demande
+     * @return 
+     */
     @PostMapping
     public ResponseEntity<?> saveDemande(@RequestBody Demande demande) {
         demande.setId(UUID.randomUUID().toString());
@@ -86,9 +100,20 @@ public class DemandeRepresentation {
        
     }
     
-    // PUT
+    /**
+     * PUT
+     * @param demande
+     * @param demandeId
+     * @return 
+     */
     @PutMapping(value = "/{demandeId}")
+    @JsonIgnoreProperties("ETAT")
     public ResponseEntity<?> updateInscription(@RequestBody Demande demande,@PathVariable("demandeId") String demandeId) {
+        //On va rechercher l'ancienne demande
+        Demande laDemande = irDemande.findOne(demandeId);
+        String etat = laDemande.getEtat();
+        
+        //Récupèration du body
         Optional<Demande> body = Optional.ofNullable(demande);
         if (!body.isPresent()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -96,9 +121,23 @@ public class DemandeRepresentation {
         if (!irDemande.exists(demandeId)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        demande.setId(demandeId);
-        Demande result = irDemande.save(demande);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+       
+        //On récupère le lien hateoas
+        Resource r = demandeToResource(laDemande, true);
+        
+        //Si on peut valider, on peut modifier la demande
+        //si on peut attribuer, on peut encore modifier, mais après le statut ne le permet plus 
+        if(isLinkPresent("valider",r.getLinks()) || isLinkPresent("attribuer",r.getLinks()) ){
+            
+            demande.setEtat(etat);
+            demande.setId(demandeId);
+            irDemande.save(demande);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        
     }
 
     
@@ -483,4 +522,6 @@ public class DemandeRepresentation {
         return false;
         
     }
+    
+    
 }
