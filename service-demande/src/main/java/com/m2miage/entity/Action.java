@@ -6,6 +6,7 @@
 package com.m2miage.entity;
 
 import java.io.Serializable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -17,24 +18,57 @@ import javax.persistence.Table;
  * @author Anthony
  */
 @Entity
-@Table(name = "action")
 public class Action implements Serializable{
     @Id
     private String id;
+    private String numero;
     private String nom;
     private String personnecharge;
     private String etat;
     private String date;
-    
-    @JoinColumn(name="demande_id",nullable=false)
-    private Demande demande;
-    private String demande_id;
-  
 
+  
+    
+    @ManyToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name="demande_id")
+    private Demande d;
+    
+
+    public String getPersonnecharge() {
+        return personnecharge;
+    }
+
+    public void setPersonnecharge(String personnecharge) {
+        this.personnecharge = personnecharge;
+    }
+
+
+    public String getDemandeId(){
+        return this.d.getId();
+        
+    }
+    
     public Action() {
     }
     
-    /*
+    public Action(String id, String numero, String nom, String personnecharge, String etat, String date) {
+        this.id = id;
+        this.numero = numero;
+        this.nom = nom;
+        this.personnecharge = personnecharge;
+        this.etat = etat;
+        this.date = date;
+        
+    }
+
+    public String getNumero() {
+        return numero;
+    }
+
+    public void setNumero(String numero) {
+        this.numero = numero;
+    }
+
     public Demande getD() {
         return d;
     }
@@ -42,7 +76,7 @@ public class Action implements Serializable{
     public void setD(Demande d) {
         this.d = d;
     }
-*/
+
      public Action(String nom) {
         this.nom = nom;
     }

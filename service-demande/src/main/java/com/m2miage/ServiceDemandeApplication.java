@@ -14,7 +14,6 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 @EnableCircuitBreaker
 //@EnableBinding(DemandeChannel.class)
 public class ServiceDemandeApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceDemandeApplication.class, args);
 	}

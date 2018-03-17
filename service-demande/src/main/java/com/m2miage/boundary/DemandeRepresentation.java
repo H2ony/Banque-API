@@ -8,7 +8,13 @@ import java.util.UUID;
 import com.m2miage.entity.Demande;
 import com.m2miage.entity.Demande;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.Link;
@@ -34,17 +40,19 @@ import org.springframework.web.bind.annotation.RestController;
 @ExposesResourceFor(Demande.class)
 public class DemandeRepresentation {
 
-    private final DemandeRessource ir;
+    private final DemandeRessource irDemande;
+    private final ActionRessource irAction;
     
     @Autowired
-    public DemandeRepresentation(DemandeRessource ir) {
-      this.ir = ir;
+    public DemandeRepresentation(DemandeRessource irDemande, ActionRessource irAction) {
+      this.irDemande = irDemande;
+      this.irAction = irAction;
     }
 
     // GET all
     @GetMapping
     public ResponseEntity<?> getAllDemande() {
-        Iterable<Demande> allDemande = ir.findAll();
+        Iterable<Demande> allDemande = irDemande.findAll();
         return new ResponseEntity<>(demandeToResource(allDemande), HttpStatus.OK);
     }
 
@@ -52,7 +60,7 @@ public class DemandeRepresentation {
     @GetMapping(value = "/{demandeId}")
     public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id) {
         // ? = Resource<Demande>
-        return Optional.ofNullable(ir.findOne(id))
+        return Optional.ofNullable(irDemande.findOne(id))
                 .map(u -> new ResponseEntity<>(demandeToResource(u, true), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -62,12 +70,11 @@ public class DemandeRepresentation {
     @PostMapping
     public ResponseEntity<?> saveDemande(@RequestBody Demande demande) {
         demande.setId(UUID.randomUUID().toString());
-        demande.setEtat("");
-        
+
         HttpHeaders responseHeaders = new HttpHeaders();
         
         
-        Demande saved = ir.save(demande);
+        Demande saved = irDemande.save(demande);
         
         responseHeaders.setLocation(linkTo(DemandeRepresentation.class).slash(saved.getId()).toUri());
         return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
@@ -75,27 +82,109 @@ public class DemandeRepresentation {
         
        
     }
-
+    
     // PUT
     @PutMapping(value = "/{demandeId}")
-    public ResponseEntity<?> updateInscription(@RequestBody Demande demande,
-            @PathVariable("demandeId") String demandeId) {
+    public ResponseEntity<?> updateInscription(@RequestBody Demande demande,@PathVariable("demandeId") String demandeId) {
         Optional<Demande> body = Optional.ofNullable(demande);
         if (!body.isPresent()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        if (!ir.exists(demandeId)) {
+        if (!irDemande.exists(demandeId)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         demande.setId(demandeId);
-        Demande result = ir.save(demande);
+        Demande result = irDemande.save(demande);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    
+    
+    /**
+     * 
+     * Accepte une demande et génère la prochaine action
+     */   
+    @Transactional
+    @PutMapping(value = "/{demandeId}/accept")
+    public ResponseEntity<?>acceptDemande(@PathVariable("demandeId") String demandeId) {
+        Demande laDemande;
+        Action newAction;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("JPAService");
+        EntityManager em = emf.createEntityManager();
+        
+        
+        //On va rechercher la demande
+        laDemande = irDemande.findOne(demandeId);
+            
+        if(laDemande == null ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        else {
+            
+            em.getTransaction().begin();
+            
+            //On change l'état de la demande et on enregistre l'action
+            newAction=laDemande.nextState();
+            irDemande.save(laDemande);
+            
+            //On set l'id de la prochaine action
+            newAction.setId(UUID.randomUUID().toString());
+            
+            //On sauvegarde l'action
+            irAction.save(newAction);
+            em.persist(newAction);
+            
+            em.flush();
+            
+            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.OK);
+        }
+        
+    }
+
+    
+     /**
+     * 
+     * Accepte une demande et génère la prochaine action
+     */   
+    @Transactional
+    @PutMapping(value = "/{demandeId}/delegate/{personName}")
+    public ResponseEntity<?>delegateDemande(@PathVariable("demandeId") String demandeId, @PathVariable("personName") String personName) {
+        Demande laDemande;
+        Action newAction;
+        
+        
+        //On va rechercher la demande
+        laDemande = irDemande.findOne(demandeId);
+            
+        if(laDemande == null ){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        else {
+            
+            //On change l'état de la demande et on enregistre l'action
+            newAction=laDemande.nextState();
+            
+            //On initialise la personne en charge
+            newAction.setPersonneCharge(personName);
+            
+            //On sauvegarde la demande
+            irDemande.save(laDemande);
+            
+            //On set l'id de la nouvelle action
+            newAction.setId(UUID.randomUUID().toString());
+            
+            //Puis on la sauvegarde l'action
+            irAction.save(newAction);
+            
+            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.OK);
+        }
+        
+    }
+    
     // DELETE
     @DeleteMapping(value = "/{demandeId}")
     public ResponseEntity<?> deleteInscription(@PathVariable String demandeId) {
-        ir.delete(demandeId);
+        irDemande.delete(demandeId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -108,16 +197,48 @@ public class DemandeRepresentation {
     }
 
     private Resource<Demande> demandeToResource(Demande demande, Boolean collection) {
-        Link selfLink = linkTo(DemandeRepresentation.class)
-                .slash(demande.getId())
-                .withSelfRel();
+    
+        //Ressource retournée, en premier la demande et son selflink
+        Resource r = new Resource(demande);
+        
+       //On ajoute les liens vers les actions de la demande
+        for (Action a : demande.getActions()) {
+            r.add(linkTo(methodOn(ActionRepresentation.class).getAction(a.getId()))
+                .withRel("actions"));
+            
+        }
+        
+        //Lien vers la demande elle même
+         Link selfLink; 
+        
+        //En fonction de l'état de la demande, on ajoute le lien vers la prochaine action
+        switch(demande.getEtat()){
+ 
+            case "[DEBUT]":
+               selfLink = linkTo(methodOn(DemandeRepresentation.class).getDemande(demande.getId()))
+                .slash("delegate")
+                .slash("HOYET")
+                .withRel("attribuer");
+                break;
+            default:
+                selfLink = linkTo(methodOn(DemandeRepresentation.class).getDemande(demande.getId()))
+                .slash("accept")
+                .withRel("valider");
+                break;
+        }
+        
+        r.add(selfLink);
+        
+        //On pointe vers les autres demandes
         if (collection) {
             Link collectionLink = linkTo(methodOn(DemandeRepresentation.class).getAllDemande())
                     .withRel("collection");
             
-            return new Resource<>(demande, selfLink, collectionLink);
+            r.add(collectionLink);
+            
+            return r;
         } else {
-            return new Resource<>(demande, selfLink);
+            return r;
         }
     }
     /*

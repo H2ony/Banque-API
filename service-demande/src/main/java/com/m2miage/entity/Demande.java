@@ -11,21 +11,23 @@ package com.m2miage.entity;
  */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
+import java.util.Date;
+import java.util.Locale;
 
 @Entity
-@Table(name = "demande")
 public class Demande {
 
     @Id
@@ -39,16 +41,13 @@ public class Demande {
     private int duree;
     private String etat;
     
-    @JoinTable(name = "action_demande", joinColumns = @JoinColumn(name = "demande_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "action_id", referencedColumnName = "id"))
+    
     @ElementCollection
     @JsonProperty("actions")
-    private Set<Action> actions = new HashSet();;
+    @OneToMany(mappedBy = "d")
+    private Set<Action> actions = new HashSet();
    
-    
-    @ElementCollection
-    @JsonProperty("actions-id")
-    private Set<String> actionsId;
-    
+   
     
     public Demande() {
     }
@@ -76,6 +75,7 @@ public class Demande {
         this.credit = d.credit;
         this.duree = d.duree;
         this.etat = d.etat;
+        
     }
 
     public Set<Action> getActions() {
@@ -153,18 +153,38 @@ public class Demande {
     public String getEtat() {
         return etat;
     }
-
-    public void setEtat(String etat) {
-        this.etat = etat;
+    
+    //Retourne la prochaine action à insèrer
+    public Action nextState(){
+        Action a = new Action();
+        
+        a.setD(this);
+        //MARCHE PAS CA --> a.setDemande_id(this.id);
+        
+        Date aujourdhui = new Date();
+        DateFormat shortDateFormat = DateFormat.getDateTimeInstance(
+        DateFormat.SHORT,
+        DateFormat.SHORT, new Locale("FR","fr"));
+        
+        switch(this.etat){
+            case "[DEBUT]":
+                a=new Action("","2", "Vérification informations", "HOYET", "Revue en cours", shortDateFormat.format(aujourdhui));
+                this.etat = "[ETUDE]";
+            break;
+                
+            //Par défaut, si la demande n'a pas d'état, on le met à début
+            default:
+                this.etat = "[DEBUT]";
+                a= new Action("","1", "A valider", "HOYET", "En attente d'attribution", shortDateFormat.format(aujourdhui));
+                //this.actions.add(a);
+            break;
+        }
+        return a;
     }
 
-    public Set<String> getActionsId() {
-        return actionsId;
-    }
+    
 
-    public void setActionsId(Set<String> actionsId) {
-        this.actionsId = actionsId;
-    }
+    
 
    
     
