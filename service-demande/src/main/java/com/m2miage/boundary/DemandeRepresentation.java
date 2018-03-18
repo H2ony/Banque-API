@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 @RestController
-@RequestMapping(value = "/demandes", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Demande.class)
 public class DemandeRepresentation {
 
@@ -58,7 +58,7 @@ public class DemandeRepresentation {
      * GET all
      * @return 
      */
-    @GetMapping
+    @GetMapping(value = "/demandes")
     public ResponseEntity<?> getAllDemande() {
         Iterable<Demande> allDemande = irDemande.findAll();
         return new ResponseEntity<>(demandeToResource(allDemande), HttpStatus.OK);
