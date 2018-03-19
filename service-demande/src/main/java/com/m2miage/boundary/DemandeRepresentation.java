@@ -83,7 +83,22 @@ public class DemandeRepresentation {
     public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id,HttpServletRequest req, HttpServletResponse res) {
         final Optional<String> token = Optional.ofNullable(req.getHeader(HttpHeaders.AUTHORIZATION));
         
-        if(token != null){
+       
+         
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        
+        System.out.println("*******"+token+"*****");
+
+        
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        
+        if(token.toString().compareTo(irDemande.findOne(id).getToken())==0){
             // ? = Resource<Demande>
             return Optional.ofNullable(irDemande.findOne(id))
                     .map(u -> new ResponseEntity<>(demandeToResource(u, true,null), HttpStatus.OK))
@@ -124,13 +139,27 @@ public class DemandeRepresentation {
         
         HttpHeaders responseHeaders = new HttpHeaders();
         
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        /*
+        System.out.println("*******"+req.getAttribute("username").toString()+"*****");
+        System.out.println("*******"+req.getHeader("username").toString()+"*****");
+        */
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        System.out.println("********************************************************");
+        
+        
         String token = Jwts.builder()
-                .setSubject(req.getAttribute("username").toString())
+                .setSubject("toto")
                 .setExpiration(new Date(System.currentTimeMillis() + 12000000))
                 .signWith(SignatureAlgorithm.HS512, "thesecret")
                 .compact();
 
-        
+        demande.setToken(token);
         Demande saved = irDemande.save(demande);
         
         responseHeaders.add(HttpHeaders.AUTHORIZATION, token);

@@ -43,6 +43,9 @@ public class Demande {
     private int duree;
     @Column(name="ETAT")
     private String etat;
+    private String token;
+
+    
     
     
     @ElementCollection
@@ -83,6 +86,14 @@ public class Demande {
         
     }
 
+    
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
     public Set<Action> getActions() {
         return actions;
     }
