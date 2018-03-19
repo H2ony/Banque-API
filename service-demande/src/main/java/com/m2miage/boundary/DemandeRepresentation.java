@@ -82,25 +82,11 @@ public class DemandeRepresentation {
     @GetMapping(value = "/{demandeId}")
     public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id,HttpServletRequest req, HttpServletResponse res) {
         final Optional<String> token = Optional.ofNullable(req.getHeader(HttpHeaders.AUTHORIZATION));
-        
+        Demande d = irDemande.findOne(id);
        
-         
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        
-        System.out.println("*******"+token+"*****");
-
-        
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        
-        if(token.toString().compareTo(irDemande.findOne(id).getToken())==0){
+        if(token.get().compareTo(d.getToken())==0){
             // ? = Resource<Demande>
-            return Optional.ofNullable(irDemande.findOne(id))
+            return Optional.ofNullable(d)
                     .map(u -> new ResponseEntity<>(demandeToResource(u, true,null), HttpStatus.OK))
                     .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
         }
