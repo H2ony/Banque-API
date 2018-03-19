@@ -138,11 +138,11 @@ public class DemandeRepresentation {
         }
        
         //On récupère le lien hateoas
-        Resource r = demandeToResource(laDemande, true,null);
+        //Resource r = demandeToResource(laDemande, true,null);
         
         //Si on peut valider, on peut modifier la demande
         //si on peut attribuer, on peut encore modifier, mais après le statut ne le permet plus 
-        if(isLinkPresent("valider",r.getLinks()) || isLinkPresent("attribuer",r.getLinks()) ){
+        if(etat.compareTo("[DEBUT]") == 0 || etat.compareTo("[ETUDE]") == 0){
             
             demande.setEtat(etat);
             demande.setId(demandeId);
