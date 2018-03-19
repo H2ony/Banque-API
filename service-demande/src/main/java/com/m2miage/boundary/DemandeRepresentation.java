@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 import com.m2miage.entity.Demande;
 import com.m2miage.entity.Demande;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -39,7 +42,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.bind.annotation.RequestParam;
+
+
+
 @RestController
 @RequestMapping(value="/demandes", produces = MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Demande.class)
@@ -56,7 +64,7 @@ public class DemandeRepresentation {
 
     /** 
      * 
-     * GET all
+     * GET all demandes en fonction du statut passé en paramètre
      * @return 
      */
     @GetMapping
@@ -67,16 +75,23 @@ public class DemandeRepresentation {
 
     /**
      * 
-     *  GET one
+     *  GET une demande en fonctione de son id
      * @param id
      * @return 
      */
     @GetMapping(value = "/{demandeId}")
-    public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id) {
-        // ? = Resource<Demande>
-        return Optional.ofNullable(irDemande.findOne(id))
-                .map(u -> new ResponseEntity<>(demandeToResource(u, true,null), HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id,HttpServletRequest req, HttpServletResponse res) {
+        final Optional<String> token = Optional.ofNullable(req.getHeader(HttpHeaders.AUTHORIZATION));
+        
+        if(token != null){
+            // ? = Resource<Demande>
+            return Optional.ofNullable(irDemande.findOne(id))
+                    .map(u -> new ResponseEntity<>(demandeToResource(u, true,null), HttpStatus.OK))
+                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
     
      /**
@@ -95,19 +110,30 @@ public class DemandeRepresentation {
 
 
     /**
-     *  POST
+     *  POST une nouvelle demande
      * @param demande
      * @return 
      */
     @PostMapping
-    public ResponseEntity<?> saveDemande(@RequestBody Demande demande) {
-        demande.setId(UUID.randomUUID().toString());
+    public ResponseEntity<?> saveDemande(@RequestBody Demande demande, HttpServletRequest req, HttpServletResponse res) {
+        
 
+
+        //On génère l'id de la demande 
+        demande.setId(UUID.randomUUID().toString());
+        
         HttpHeaders responseHeaders = new HttpHeaders();
         
+        String token = Jwts.builder()
+                .setSubject(req.getAttribute("username").toString())
+                .setExpiration(new Date(System.currentTimeMillis() + 12000000))
+                .signWith(SignatureAlgorithm.HS512, "thesecret")
+                .compact();
+
         
         Demande saved = irDemande.save(demande);
         
+        responseHeaders.add(HttpHeaders.AUTHORIZATION, token);
         responseHeaders.setLocation(linkTo(DemandeRepresentation.class).slash(saved.getId()).toUri());
         return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
         
@@ -116,14 +142,17 @@ public class DemandeRepresentation {
     }
     
     /**
-     * PUT
+     * PUT une demande en fonction de son id
      * @param demande
      * @param demandeId
      * @return 
      */
     @PutMapping(value = "/{demandeId}")
     @JsonIgnoreProperties("ETAT")
-    public ResponseEntity<?> updateDemande(@RequestBody Demande demande,@PathVariable("demandeId") String demandeId) {
+    public ResponseEntity<?> updateDemande(@RequestBody Demande demande,@PathVariable("demandeId") String demandeId,HttpServletRequest req, HttpServletResponse res) {
+        final Optional<String> token = Optional.ofNullable(req.getHeader(HttpHeaders.AUTHORIZATION));
+
+
         //On va rechercher l'ancienne demande
         Demande laDemande = irDemande.findOne(demandeId);
         String etat = laDemande.getEtat();
@@ -156,8 +185,8 @@ public class DemandeRepresentation {
     }   
   
     /**
-     *  POST
-     * @param demande
+     *  POST une nouvelle action et met à jour l'état de la demande
+     * @param action
      * @return 
      */
     @PostMapping(value = "/{demandeId}/actions")
@@ -228,7 +257,7 @@ public class DemandeRepresentation {
            
     }
     
-    /** DELETE
+    /** DELETE une demande en fonction de son id passé en paramètre
      * 
      * @param demandeId
      * @return 
