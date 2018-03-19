@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 @RequestMapping(value="/demandes", produces = MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Demande.class)
@@ -59,9 +60,9 @@ public class DemandeRepresentation {
      * @return 
      */
     @GetMapping
-    public ResponseEntity<?> getAllDemande() {
+    public ResponseEntity<?> getAllDemande(@RequestParam(value = "statut", required = false) String leStatut) {
         Iterable<Demande> allDemande = irDemande.findAll();
-        return new ResponseEntity<>(demandeToResource(allDemande), HttpStatus.OK);
+        return new ResponseEntity<>(demandeToResource(allDemande,leStatut), HttpStatus.OK);
     }
 
     /**
@@ -74,7 +75,7 @@ public class DemandeRepresentation {
     public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id) {
         // ? = Resource<Demande>
         return Optional.ofNullable(irDemande.findOne(id))
-                .map(u -> new ResponseEntity<>(demandeToResource(u, true), HttpStatus.OK))
+                .map(u -> new ResponseEntity<>(demandeToResource(u, true,null), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
     
@@ -137,7 +138,7 @@ public class DemandeRepresentation {
         }
        
         //On récupère le lien hateoas
-        Resource r = demandeToResource(laDemande, true);
+        Resource r = demandeToResource(laDemande, true,null);
         
         //Si on peut valider, on peut modifier la demande
         //si on peut attribuer, on peut encore modifier, mais après le statut ne le permet plus 
@@ -152,225 +153,79 @@ public class DemandeRepresentation {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         
-    }
-
-    
-    
+    }   
+  
     /**
-     * 
-     * Accepte une demande et génère la prochaine action
-     */   
-    @Transactional
-    @PutMapping(value = "/{demandeId}/accept")
-    public ResponseEntity<?>acceptDemande(@PathVariable("demandeId") String demandeId) {
-        
-        //on récupère l'uri pour la comparer au lien hateoas proposé
-        //String url =  request.getRequestURI();
-        
-        
-        Demande laDemande;
-        Action newAction;
-        //On va rechercher la demande
-        laDemande = irDemande.findOne(demandeId);
-     
-      
-        //On récupère le lien hateoas
-        Resource r = demandeToResource( laDemande, true);
-        
-        //On contrôle que l'action est bien la prochaine
-        if(!isLinkPresent("valider",r.getLinks())){
+     *  POST
+     * @param demande
+     * @return 
+     */
+    @PostMapping(value = "/{demandeId}/actions")
+    public ResponseEntity<?> saveAction(@PathVariable("demandeId") String demandeId, @RequestBody Action action) {
+        HttpHeaders responseHeaders = new HttpHeaders();
 
-            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.BAD_REQUEST);
+        //On va rechercher l'ancienne demande
+        Demande laDemande = irDemande.findOne(demandeId);
 
+        //On récupère la prochaine action qui doit-être présente et la dernière pour set l'état
+        Action nextAction = getNextAction(laDemande);
+        Action previousAction = new Action(-1);
+        
+        if(laDemande.returnLastAction().getNumero()>=0){
+            
+            previousAction = irAction.findOne(laDemande.returnLastAction().getIdAction());
+            
+            //On change son statut à terminé
+            previousAction.setEtat("terminée");
+ 
         }
-
-        if(laDemande == null ){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        
+        
+        //Si la nouvelle action est bien celle attendue et que la dernière action est terminée, 
+        if(nextAction.compareTo(action)){
+            
+            
+            //On set l'état de l'action
+            action.setId(UUID.randomUUID().toString());
+            action.setNumero(nextAction.getNumero());
+            action.setDemande(laDemande);
+            
+            
+             //Si l'action est une acceptation ou un rejet
+            if(action.getEtat().toLowerCase().compareTo(("acceptée").toLowerCase())==0){
+               laDemande.setEtat("[ACCEPTATION]"); 
+            }
+            
+            //Si l'action est une acceptation ou un rejet
+            if(action.getEtat().toLowerCase().compareTo(("rejetée").toLowerCase())==0){
+               laDemande.setEtat("[REJET]"); 
+            }
+            
+            //On initialise avec le Bon état
+            action.setEtat(nextAction.getEtat());
+            
+            //on sauvegarde l'ancienne action et la nouvelle
+            Action saved = irAction.save(action);
+            
+                    
+            //On l'ajoute à la demande 
+            laDemande.addActions(saved);
+            
+            //On sauvegarde la demande(Etat à changé)
+            irDemande.save(laDemande);
+            
+           if( previousAction.getNumero()>=0){
+                irAction.save(previousAction);
+            }
+            
+            responseHeaders.setLocation(linkTo(DemandeRepresentation.class).slash(saved.getId()).toUri());
+            return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
         }
         else{
-
-            //On change l'état de la demande et on enregistre l'action
-            newAction=getNextAction(laDemande);
-
-            //On raccroche la demande à l'action
-            newAction.setDemande(laDemande);
-
-            //On raccroche l'action
-            if(laDemande.addActions(newAction)){
-                 //On sauvegarde l'action
-                irAction.save(newAction);
-            }
-            else{
-                new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.CONFLICT);
-            }
-
-            //On sauvegarde la demande
-            irDemande.save(laDemande);
-
-            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.OK);
-        }
-        
-        
-    }
-
-    
-    /**
-     * 
-     * Accepte une demande et génère la prochaine action
-     */   
-    @Transactional
-    @PutMapping(value = "/{demandeId}/delegate/{personName}")
-    public ResponseEntity<?>delegateDemande(@PathVariable("demandeId") String demandeId, @PathVariable("personName") String personName) {
-        Demande laDemande;
-        Action newAction;
-        
-        //On va rechercher la demande
-        laDemande = irDemande.findOne(demandeId);
-        
-        //On récupère le lien hateoas
-        Resource r = demandeToResource( laDemande, true);
-        
-        //On contrôle que l'action est bien la prochaine
-        if(!isLinkPresent("attribuer",r.getLinks())){
-
-            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.BAD_REQUEST);
-
-        }
             
-        if(laDemande == null ){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, responseHeaders, HttpStatus.BAD_REQUEST);
         }
-        else {
-            
-            //On change l'état de la demande et on enregistre l'action
-            newAction=getNextAction(laDemande);
- 
-            newAction.setPersonneCharge(personName);
-
-            //On raccroche la demande à l'action
-            newAction.setDemande(laDemande);
-            
-            //On raccroche l'action
-            if(laDemande.addActions(newAction)){
-                 //On sauvegarde l'action
-                irAction.save(newAction);
-            }
-            else{
-                new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.CONFLICT);
-            }
-
-            //On sauvegarde la demande
-            irDemande.save(laDemande);
-            
-            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.OK);
-        }
-        
-    }
-    
-    /**
-     * 
-     * Accepte une demande et génère la prochaine action
-     */   
-    @Transactional
-    @PutMapping(value = "/{demandeId}/decide")
-    public ResponseEntity<?>decideDemande(@PathVariable("demandeId") String demandeId) {
-        Demande laDemande;
-        Action newAction;
-        
-        //On va rechercher la demande
-        laDemande = irDemande.findOne(demandeId);
            
-        //On récupère le lien hateoas
-        Resource r = demandeToResource( laDemande, true);
-        
-        //On contrôle que l'action est bien la prochaine
-        if(!isLinkPresent("decider",r.getLinks())){
-
-            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.BAD_REQUEST);
-
-        }
-        
-        if(laDemande == null ){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        else {
-            
-            //On change l'état de la demande et on enregistre l'action
-            newAction=getNextAction(laDemande);
-
-            //On raccroche la demande à l'action
-            newAction.setDemande(laDemande);
-            
-            //On raccroche l'action
-            if(laDemande.addActions(newAction)){
-                 //On sauvegarde l'action
-                irAction.save(newAction);
-            }
-            else{
-                new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.CONFLICT);
-            }
-
-            //On sauvegarde la demande
-            irDemande.save(laDemande);
-            
-            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.OK);
-        }
-        
-    }
-    
-    
-    /**
-     * 
-     * Décision sur une finale
-     */   
-    @Transactional
-    @PutMapping(value = "/{demandeId}/jury/{decision}")
-    public ResponseEntity<?>decisionDemande(@PathVariable("demandeId") String demandeId, @PathVariable("decision") String decision) {
-        Demande laDemande;
-        Action newAction;
-        
-        //On va rechercher la demande
-        laDemande = irDemande.findOne(demandeId);
-           
-        //On récupère le lien hateoas
-        Resource r = demandeToResource( laDemande, true);
-        
-        //On contrôle que l'action est bien la prochaine
-        if(!isLinkPresent("juger",r.getLinks())){
-
-            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.BAD_REQUEST);
-
-        }
-        
-        if(laDemande == null ){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        else {
-            
-            //On récupère la décision
-            laDemande.setEtat(decision);
-            
-            //On change l'état de la demande et on enregistre l'action
-            newAction=getNextAction(laDemande);
-
-            //On raccroche la demande à l'action
-            newAction.setDemande(laDemande);
-            
-            //On raccroche l'action
-            if(laDemande.addActions(newAction)){
-                 //On sauvegarde l'action
-                irAction.save(newAction);
-            }
-            else{
-                new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.CONFLICT);
-            }
-
-            //On sauvegarde la demande
-            irDemande.save(laDemande);
-            
-            return new ResponseEntity<>(demandeToResource(laDemande, true), HttpStatus.OK);
-        }
-        
     }
     
     /** DELETE
@@ -393,15 +248,27 @@ public class DemandeRepresentation {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    private Resources<Resource<Demande>> demandeToResource(Iterable<Demande> demandes) {
-        Link selfLink = linkTo(methodOn(DemandeRepresentation.class).getAllDemande())
+    private Resources<Resource<Demande>> demandeToResource(Iterable<Demande> demandes, String statut) {
+        Link selfLink = linkTo(methodOn(DemandeRepresentation.class).getAllDemande(statut))
                 .withSelfRel();
         List<Resource<Demande>> demandeResources = new ArrayList<>();
-        demandes.forEach(demande ->demandeResources.add(demandeToResource(demande, false)));
+        demandes.forEach(
+                
+                    demande ->{
+                        if(statut!=null){
+                            if(demande.getEtat().compareTo(statut) == 0)
+                                demandeResources.add(demandeToResource(demande, false, statut));
+                        }
+                        else{
+                            demandeResources.add(demandeToResource(demande, false, statut));
+                        }
+                    });
+                
+
         return new Resources<>(demandeResources, selfLink);
     }
 
-    private Resource<Demande> demandeToResource(Demande demande, Boolean collection) {
+    private Resource<Demande> demandeToResource(Demande demande, Boolean collection, String statut) {
     
         //Ressource retournée, en premier la demande et son selflink
         Resource r = new Resource(demande);
@@ -413,56 +280,9 @@ public class DemandeRepresentation {
             
         }
         
-        //Lien vers la demande elle même
-         Link selfLink; 
-        
-        //En fonction de l'état de la demande, on ajoute le lien vers la prochaine action
-        switch(demande.getEtat()){
- 
-            case "[DEBUT]":
-               selfLink = linkTo(methodOn(DemandeRepresentation.class).getDemande(demande.getId()))
-                .slash("delegate")
-                .slash("PERRIN")
-                .withRel("attribuer");
-                break;
-                
-            case "[ETUDE]":
-               selfLink = linkTo(methodOn(DemandeRepresentation.class).getDemande(demande.getId()))
-                .slash("decide")
-                .withRel("decider");
-                break;
-            case "[DECISION]":
-                
-               if(((int)(Math.random() * (100-1)) + 1) >50) {
-                    selfLink = linkTo(methodOn(DemandeRepresentation.class).getDemande(demande.getId()))
-                    .slash("jury")
-                    .slash("[ACCEPTATION]")
-                    .withRel("juger");
-               }
-               else{
-                   selfLink = linkTo(methodOn(DemandeRepresentation.class).getDemande(demande.getId()))
-                    .slash("jury")
-                    .slash("[REJET]")
-                    .withRel("juger");
-               }
-               
-                break;
-                case "[FIN]":
-                    selfLink = linkTo(methodOn(DemandeRepresentation.class).getDemande(demande.getId()))
-                    .withSelfRel();
-                 break;
-            default:
-                selfLink = linkTo(methodOn(DemandeRepresentation.class).getDemande(demande.getId()))
-                .slash("accept")
-                .withRel("valider");
-                break;
-        }
-        
-        r.add(selfLink);
-        
         //On pointe vers les autres demandes
         if (collection) {
-            Link collectionLink = linkTo(methodOn(DemandeRepresentation.class).getAllDemande())
+            Link collectionLink = linkTo(methodOn(DemandeRepresentation.class).getAllDemande(null))
                     .withRel("collection");
             
             r.add(collectionLink);
@@ -493,39 +313,32 @@ public class DemandeRepresentation {
         //En fonction de l'état de la demande on retoune l'action qui va bien 
         switch(demande.getEtat()){
             case "[DEBUT]":
-                a=new Action(UUID.randomUUID().toString(),"2", "Vérification informations", "HOYET", "Revue en cours", getAujourdhuiFormat().format(getAujourdhuiDate()));
-                 //On adapte le statut de la demande 
+                a=new Action(UUID.randomUUID().toString(),2, "Revue en cours", "HOYET", "En cours", getAujourdhuiFormat().format(getAujourdhuiDate()));
+                //On adapte le statut de la demande 
                 demande.setEtat("[ETUDE]");
             break;
             
             case "[ETUDE]":
-                a=new Action(UUID.randomUUID().toString(),"3", "Vérification informations", "HOYET", "Décision en attente de validation", getAujourdhuiFormat().format(getAujourdhuiDate()));
-                 //On adapte le statut de la demande 
+                a=new Action(UUID.randomUUID().toString(),3, "Décision en attente de validation", "HOYET", "En cours", getAujourdhuiFormat().format(getAujourdhuiDate()));
+                //On adapte le statut de la demande 
                 demande.setEtat("[DECISION]");
             break;
                 
             
-            case "[ACCEPTATION]":
-                a=new Action(UUID.randomUUID().toString(),"4", "Notification", "HOYET", "Demande acceptée", getAujourdhuiFormat().format(getAujourdhuiDate()));
-                 //On adapte le statut de la demande 
-                demande.setEtat("[FIN]");
+            case "[DECISION]":
+                a=new Action(UUID.randomUUID().toString(),4, "Notification", "HOYET", "En cours", getAujourdhuiFormat().format(getAujourdhuiDate()));
             break;
             
-            case "[REJET]":
-                a=new Action(UUID.randomUUID().toString(),"4", "Notification", "HOYET", "Demande refusée", getAujourdhuiFormat().format(getAujourdhuiDate()));
-                 //On adapte le statut de la demande 
-                demande.setEtat("[FIN]");
-            break;
             
             //On tombe jamais dans ce cas grâce au lien HATEOAS
             case "[FIN]":
-                a=new Action(UUID.randomUUID().toString(),"5", "Notification", "HOYET", "Erreur", getAujourdhuiFormat().format(getAujourdhuiDate()));
+                a=new Action(UUID.randomUUID().toString(),5, "Notification", "HOYET", "Erreur", getAujourdhuiFormat().format(getAujourdhuiDate()));
                 demande.setEtat("[FIN]");
             break;
             
             //Par défaut, si la demande n'a pas d'état, on le met à début
             default:
-                a= new Action(UUID.randomUUID().toString(),"1", "A valider", "HOYET", "En attente d'attribution", getAujourdhuiFormat().format(getAujourdhuiDate()));
+                a= new Action(UUID.randomUUID().toString(),1, "En attente d'attribution", "HOYET", "En cours", getAujourdhuiFormat().format(getAujourdhuiDate()));
                 demande.setEtat("[DEBUT]");
             break;
         }

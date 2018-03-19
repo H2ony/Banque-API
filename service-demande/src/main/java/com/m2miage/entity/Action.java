@@ -24,7 +24,7 @@ public class Action implements Serializable{
     @Id
     @Column(name="IDACTION")
     private String idAction;
-    private String numero;
+    private int numero;
     private String nom;
     private String personnecharge;
     private String etat;
@@ -54,7 +54,12 @@ public class Action implements Serializable{
     public Action() {
     }
     
-    public Action(String id, String numero, String nom, String personnecharge, String etat, String date) {
+     public Action(int numero){
+         this.numero = numero;
+    }
+    
+    
+    public Action(String id, int numero, String nom, String personnecharge, String etat, String date) {
         this.idAction = id;
         this.numero = numero;
         this.nom = nom;
@@ -64,11 +69,11 @@ public class Action implements Serializable{
         
     }
 
-    public String getNumero() {
+    public int getNumero() {
         return numero;
     }
 
-    public void setNumero(String numero) {
+    public void setNumero(int numero) {
         this.numero = numero;
     }
 
@@ -126,6 +131,20 @@ public class Action implements Serializable{
 
     public void setDate(String date) {
         this.date = date;
+    }
+    
+    public boolean compareTo(Action a){
+        boolean isEqual = false;
+        
+        if(a.nom.toLowerCase().compareTo(this.nom.toLowerCase()) == 0){
+            isEqual = true;
+        }
+        
+        return isEqual;
+    }
+
+    public String toString(){
+        return "Numéro : "+String.valueOf(this.numero)+",  Nom : "+this.nom+"  Id : "+this.idAction;
     }
 
 }

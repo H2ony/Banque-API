@@ -1,3 +1,3 @@
 insert into demande ( idDemande,nom,prenom,adresse,datenaiss,revenu,credit,duree,etat) values('1234','Toto', 'Titi','Nancy','16/07/1992',100,20,3,'[DEBUT]');
-insert into action (  idAction,numero, nom, personnecharge, etat, date,demande_id) values('dsfhsdkfhkjdshfuehf','1','Toto', 'Jacki','En attente d''attribution','16/07/1992','1234');
+insert into action (  idAction,numero, nom, personnecharge, etat, date,demande_id) values('dsfhsdkfhkjdshfuehf',1,'En attente d''attribution', 'Jacki','En cours','16/07/1992','1234');
 --INSERT INTO action_demande ("action_id","demande_id") VALUES ( '1','1234');

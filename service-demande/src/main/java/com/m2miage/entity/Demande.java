@@ -163,7 +163,7 @@ public class Demande {
         boolean trouve = false;
         for (Action action : this.actions) {
             
-            if(action.getNumero().equals(a.getNumero())){
+            if(action.getNumero()==a.getNumero()){
                 trouve = true;
             }
             
@@ -180,41 +180,20 @@ public class Demande {
         this.etat=etat;
     }
     
-    /*
-    //Retourne la prochaine action à insèrer
-    public Action nextState(){
-        Action a = new Action();
+    /**
+     * Retourn vrai si la dernière action est terminée, faux sinon 
+     * @return 
+     */
+    public Action returnLastAction(){
+        Action action = new Action(-1);
         
-        
-        //MARCHE PAS CA --> a.setDemande_id(this.id);
-        
-        Date aujourdhui = new Date();
-        DateFormat shortDateFormat = DateFormat.getDateTimeInstance(
-        DateFormat.SHORT,
-        DateFormat.SHORT, new Locale("FR","fr"));
-        
-        switch(this.etat){
-            case "[DEBUT]":
-                a=new Action("","2", "Vérification informations", "HOYET", "Revue en cours", shortDateFormat.format(aujourdhui));
-                this.etat = "[ETUDE]";
-                //this.actions.add(a);
-            break;
-                
-            //Par défaut, si la demande n'a pas d'état, on le met à début
-            default:
-                this.etat = "[DEBUT]";
-                a= new Action("","1", "A valider", "HOYET", "En attente d'attribution", shortDateFormat.format(aujourdhui));
-                //this.actions.add(a);
-            break;
+        for(Action a : this.actions){
+            if(a.getNumero() == this.actions.size()){
+                return a;
+            }
         }
-        return a;
+        //On retourne l'action avec un numéro erreur
+        return action;
     }
-*/
-
-    
-
-    
-
-   
     
 }

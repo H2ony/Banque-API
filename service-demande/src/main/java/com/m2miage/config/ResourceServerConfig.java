@@ -23,10 +23,10 @@ public class ResourceServerConfig {
                     .authenticationEntryPoint(myEntryPoint)
                     .and()
                     .authorizeRequests()
-                    .antMatchers(HttpMethod.GET).authenticated()
-                    .antMatchers(HttpMethod.POST).authenticated()
-                    .antMatchers(HttpMethod.PUT).authenticated()
-                    .antMatchers("//**").authenticated();
+                    .antMatchers(HttpMethod.GET).permitAll()
+                    .antMatchers(HttpMethod.POST).permitAll()
+                    .antMatchers(HttpMethod.PUT).permitAll()
+                    .antMatchers("//**").permitAll();
         }
     }
     
