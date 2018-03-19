@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 @RestController
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value="/demandes", produces = MediaType.APPLICATION_JSON_VALUE)
 @ExposesResourceFor(Demande.class)
 public class DemandeRepresentation {
 
@@ -58,7 +58,7 @@ public class DemandeRepresentation {
      * GET all
      * @return 
      */
-    @GetMapping(value = "/demandes")
+    @GetMapping
     public ResponseEntity<?> getAllDemande() {
         Iterable<Demande> allDemande = irDemande.findAll();
         return new ResponseEntity<>(demandeToResource(allDemande), HttpStatus.OK);
@@ -76,6 +76,20 @@ public class DemandeRepresentation {
         return Optional.ofNullable(irDemande.findOne(id))
                 .map(u -> new ResponseEntity<>(demandeToResource(u, true), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+    
+     /**
+     * Retourne les actions pour une demande 
+     *  GET 
+     * @param id
+     * @return 
+     */
+    @GetMapping(value = "/{demandeId}/actions")
+    public ResponseEntity<?> getDemandeActions(@PathVariable("demandeId") String id) {
+        // ? = Resource<Demande>
+        Demande d = irDemande.findOne(id);
+        
+        return new ResponseEntity<>(ActionRepresentation.actionToResource(d.getActions()),HttpStatus.OK);
     }
 
 
@@ -108,7 +122,7 @@ public class DemandeRepresentation {
      */
     @PutMapping(value = "/{demandeId}")
     @JsonIgnoreProperties("ETAT")
-    public ResponseEntity<?> updateInscription(@RequestBody Demande demande,@PathVariable("demandeId") String demandeId) {
+    public ResponseEntity<?> updateDemande(@RequestBody Demande demande,@PathVariable("demandeId") String demandeId) {
         //On va rechercher l'ancienne demande
         Demande laDemande = irDemande.findOne(demandeId);
         String etat = laDemande.getEtat();
@@ -259,7 +273,7 @@ public class DemandeRepresentation {
      */   
     @Transactional
     @PutMapping(value = "/{demandeId}/decide")
-    public ResponseEntity<?>delegateDemande(@PathVariable("demandeId") String demandeId) {
+    public ResponseEntity<?>decideDemande(@PathVariable("demandeId") String demandeId) {
         Demande laDemande;
         Action newAction;
         
@@ -366,7 +380,16 @@ public class DemandeRepresentation {
      */
     @DeleteMapping(value = "/{demandeId}")
     public ResponseEntity<?> deleteInscription(@PathVariable String demandeId) {
-        irDemande.delete(demandeId);
+        Demande laDemande = new Demande();
+        
+        //On va rechercher la demande
+        laDemande = irDemande.findOne(demandeId);
+        
+        //On la clôture
+        laDemande.setEtat("[FIN]");
+        
+        irDemande.save(laDemande);
+        
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -463,8 +486,7 @@ public class DemandeRepresentation {
         
         return shortDateFormat; 
     }
-    
-    
+
     public Action getNextAction(Demande demande){
         Action a;
         

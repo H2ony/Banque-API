@@ -3,6 +3,7 @@ package com.m2miage.config;
 import com.m2miage.config.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -22,7 +23,10 @@ public class ResourceServerConfig {
                     .authenticationEntryPoint(myEntryPoint)
                     .and()
                     .authorizeRequests()
-                    .antMatchers("/demandes*//**").authenticated();
+                    .antMatchers(HttpMethod.GET).authenticated()
+                    .antMatchers(HttpMethod.POST).authenticated()
+                    .antMatchers(HttpMethod.PUT).authenticated()
+                    .antMatchers("//**").authenticated();
         }
     }
     

@@ -62,7 +62,7 @@ public class ActionRepresentation {
     }
     
 
-    private Resources<Resource<Action>> actionToResource(Iterable<Action> actions) {
+    public static Resources<Resource<Action>> actionToResource(Iterable<Action> actions) {
         Link selfLink = linkTo(methodOn(ActionRepresentation.class).getAllAction())
                 .withSelfRel();
         List<Resource<Action>> actionResources = new ArrayList<>();
@@ -70,7 +70,7 @@ public class ActionRepresentation {
         return new Resources<>(actionResources, selfLink);
     }
 
-    private Resource<Action> actionToResource(Action action, Boolean collection) {
+    public static Resource<Action> actionToResource(Action action, Boolean collection) {
         Link selfLink = linkTo(ActionRepresentation.class)
                 .slash(action.getId())
                 .withSelfRel();

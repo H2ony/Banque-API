@@ -72,7 +72,7 @@ public class Action implements Serializable{
         this.numero = numero;
     }
 
-    public Demande getDemande() {
+    public Demande getDemandeAction() {
         return d;
     }
 
