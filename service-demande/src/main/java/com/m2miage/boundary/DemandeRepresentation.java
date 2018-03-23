@@ -75,27 +75,50 @@ public class DemandeRepresentation {
 
     /**
      * 
-     *  GET une demande en fonctione de son id
+     *  GET une demande en fonction de son id
      * @param id
      * @return 
      */
     @GetMapping(value = "/{demandeId}")
-    public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id,HttpServletRequest req, HttpServletResponse res) {
-        final Optional<String> token = Optional.ofNullable(req.getHeader(HttpHeaders.AUTHORIZATION));
-        Demande d = irDemande.findOne(id);
-       
-        if(token.get().compareTo(d.getToken())==0){
-            // ? = Resource<Demande>
-            return Optional.ofNullable(d)
-                    .map(u -> new ResponseEntity<>(demandeToResource(u, true,null), HttpStatus.OK))
-                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+    public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id) {
+
+        return searchDemande(id);
+        
     }
     
-     /**
+      
+    /**
+     * 
+     *  GET une demande pour un utilisateur externe en fonction de son id 
+     * Contrôle sur le token fourni et le token présent en base de données
+     * @param id
+     * @return 
+     */
+    @GetMapping(value = "externe/{demandeId}")
+    public ResponseEntity<?> getDemandeExterne(@PathVariable("demandeId") String id,HttpServletRequest req, HttpServletResponse res) {
+        final Optional<String> token = Optional.ofNullable(req.getHeader(HttpHeaders.AUTHORIZATION));
+        
+        Demande d = irDemande.findOne(id);
+       try{
+           
+      
+            //Vérification de la validité du token
+            if(token.get().compareTo(d.getToken())==0){
+                
+                return searchDemande(id); 
+            }
+            else{
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+        }
+       //NoValueException
+       catch(Exception e){
+           return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+       }
+    }
+    
+    
+    /**
      * Retourne les actions pour une demande 
      *  GET 
      * @param id
@@ -118,32 +141,13 @@ public class DemandeRepresentation {
     @PostMapping
     public ResponseEntity<?> saveDemande(@RequestBody Demande demande, HttpServletRequest req, HttpServletResponse res) {
         
-
-
         //On génère l'id de la demande 
         demande.setId(UUID.randomUUID().toString());
         
         HttpHeaders responseHeaders = new HttpHeaders();
         
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        /*
-        System.out.println("*******"+req.getAttribute("username").toString()+"*****");
-        System.out.println("*******"+req.getHeader("username").toString()+"*****");
-        */
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        System.out.println("********************************************************");
-        
-        
-        String token = Jwts.builder()
-                .setSubject("toto")
-                .setExpiration(new Date(System.currentTimeMillis() + 12000000))
-                .signWith(SignatureAlgorithm.HS512, "thesecret")
-                .compact();
+        //On demande le token
+        String token = generateToken("toto","theSecret"); 
 
         demande.setToken(token);
         Demande saved = irDemande.save(demande);
@@ -402,5 +406,25 @@ public class DemandeRepresentation {
         
     }
     
+    /**
+     * Cette fonction créer un token
+     * La durée de validation du token est initialisé a 12000000 pour plus de simplicité
+     * @param user
+     * @param secret
+     * @return 
+     */
+    public String generateToken(String user, String secret){
+        String leToken = Jwts.builder()
+                .setSubject(user)
+                .setExpiration(new Date(System.currentTimeMillis() + 12000000))
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
+        return leToken;
+    }
     
+    public ResponseEntity<?> searchDemande(String id){
+        return Optional.ofNullable(irDemande.findOne(id))
+                .map(u -> new ResponseEntity<>(demandeToResource(u, true,null), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)); 
+    }
 }
