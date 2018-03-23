@@ -99,22 +99,14 @@ public class DemandeRepresentation {
         final Optional<String> token = Optional.ofNullable(req.getHeader(HttpHeaders.AUTHORIZATION));
         
         Demande d = irDemande.findOne(id);
-       try{
-           
-      
-            //Vérification de la validité du token
-            if(token.get().compareTo(d.getToken())==0){
-                
+       
+            if(validToken(token,d.getToken())) { 
                 return searchDemande(id); 
             }
             else{
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
-        }
-       //NoValueException
-       catch(Exception e){
-           return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-       }
+        
     }
     
     
@@ -141,8 +133,9 @@ public class DemandeRepresentation {
     @PostMapping
     public ResponseEntity<?> saveDemande(@RequestBody Demande demande, HttpServletRequest req, HttpServletResponse res) {
         
-        //On génère l'id de la demande 
+        //On génère l'id de la demande et on génère l'état vide
         demande.setId(UUID.randomUUID().toString());
+        demande.setEtat("");
         
         HttpHeaders responseHeaders = new HttpHeaders();
         
@@ -184,25 +177,51 @@ public class DemandeRepresentation {
         if (!irDemande.exists(demandeId)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-       
-        //On récupère le lien hateoas
-        //Resource r = demandeToResource(laDemande, true,null);
         
-        //Si on peut valider, on peut modifier la demande
-        //si on peut attribuer, on peut encore modifier, mais après le statut ne le permet plus 
-        if(etat.compareTo("[DEBUT]") == 0 || etat.compareTo("[ETUDE]") == 0){
+        return majDemande(laDemande.getToken(),etat,demandeId, demande);
+        
+    }   
+  
+    
+    /**
+     * PUT une demande en fonction de son id
+     * @param demande
+     * @param demandeId
+     * @return 
+     */
+    @PutMapping(value = "/externe/{demandeId}")
+    @JsonIgnoreProperties("ETAT")
+    public ResponseEntity<?> updateDemandeExterne(@RequestBody Demande demande,@PathVariable("demandeId") String demandeId,HttpServletRequest req, HttpServletResponse res) {
+        final Optional<String> token = Optional.ofNullable(req.getHeader(HttpHeaders.AUTHORIZATION));
+
+
+        //On va rechercher l'ancienne demande
+        Demande laDemande = irDemande.findOne(demandeId);
+        String etat = laDemande.getEtat();
+        String tokenDemande = laDemande.getToken();
+        
+        //Récupèration du body
+        Optional<Demande> body = Optional.ofNullable(demande);
+        if (!body.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (!irDemande.exists(demandeId)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+       
+      
+        
+        if(validToken(token,tokenDemande)){
+            return majDemande(tokenDemande,etat,demandeId, demande);
             
-            demande.setEtat(etat);
-            demande.setId(demandeId);
-            irDemande.save(demande);
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
         else{
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        
-    }   
-  
+
+    } 
+    
+    
     /**
      *  POST une nouvelle action et met à jour l'état de la demande
      * @param action
@@ -227,7 +246,6 @@ public class DemandeRepresentation {
             previousAction.setEtat("terminée");
  
         }
-        
         
         //Si la nouvelle action est bien celle attendue et que la dernière action est terminée, 
         if(nextAction.compareTo(action)){
@@ -270,7 +288,6 @@ public class DemandeRepresentation {
             return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
         }
         else{
-            
             return new ResponseEntity<>(null, responseHeaders, HttpStatus.FORBIDDEN);
         }
            
@@ -422,9 +439,72 @@ public class DemandeRepresentation {
         return leToken;
     }
     
+    /**
+     * Retourne une demande en fonction de l'id passé en paramètre
+     * @param id
+     * @return 
+     */
     public ResponseEntity<?> searchDemande(String id){
         return Optional.ofNullable(irDemande.findOne(id))
                 .map(u -> new ResponseEntity<>(demandeToResource(u, true,null), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)); 
+    }
+    
+    /**
+     * Met à jour une demande en fonction de son état actuel
+     * @param etat
+     * @param demandeId
+     * @param demande
+     * @return 
+     */
+    public ResponseEntity<?> majDemande(String token,String etat,String demandeId, Demande demande){
+        //On récupère le lien hateoas
+        //Resource r = demandeToResource(laDemande, true,null);
+        
+        //Si on peut valider, on peut modifier la demande
+        //si on peut attribuer, on peut encore modifier, mais après le statut ne le permet plus 
+        if(etat.compareTo("[DEBUT]") == 0 || etat.compareTo("[ETUDE]") == 0 || etat.compareTo("") == 0){
+            
+            demande.setEtat(etat);
+            demande.setToken(token);
+            demande.setId(demandeId);
+            irDemande.save(demande);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        }
+        else{
+            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
+            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
+            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
+            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
+            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
+            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
+            
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+    }
+    
+    /**
+     * Retourne vrai si le token est valide, faux sinon
+     * Le token passé peut-être vide
+     * @param token
+     * @param d
+     * @return 
+     */
+    public boolean validToken(Optional<String> token, String tokenDemande){
+        
+        try{
+            //Vérification de la validité du token
+            if(token.get().compareTo(tokenDemande)==0){
+                
+                return true; 
+            }
+            else{
+                return false;
+            }
+        }
+       //NoValueException
+       catch(Exception e){
+           return false;
+       }
     }
 }

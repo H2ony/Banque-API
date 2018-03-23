@@ -135,7 +135,7 @@ public class Action implements Serializable{
     
     public boolean compareTo(Action a){
         boolean isEqual = false;
-        
+
         if(a.nom.toLowerCase().compareTo(this.nom.toLowerCase()) == 0){
             isEqual = true;
         }
