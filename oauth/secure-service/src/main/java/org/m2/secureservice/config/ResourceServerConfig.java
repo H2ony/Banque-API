@@ -1,9 +1,7 @@
-package com.m2miage.config;
+package org.m2.secureservice.config;
 
-import com.m2miage.config.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -19,14 +17,12 @@ public class ResourceServerConfig {
         
         @Override
         public void configure(HttpSecurity http) throws Exception {
-            
             http.exceptionHandling()
                     .authenticationEntryPoint(myEntryPoint)
                     .and()
                     .authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/demandes/externe/{\\.*}").permitAll()
-                    .anyRequest().authenticated();
-                    
+                    .antMatchers("/hello").permitAll()
+                    .antMatchers("/secure").authenticated();
         }
     }
     
