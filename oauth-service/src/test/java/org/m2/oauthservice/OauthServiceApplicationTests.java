@@ -1,4 +1,4 @@
-package org.m2.secureservice;
+package org.m2.oauthservice;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SecureServiceApplicationTests {
+public class OauthServiceApplicationTests {
 
 	@Test
 	public void contextLoads() {
