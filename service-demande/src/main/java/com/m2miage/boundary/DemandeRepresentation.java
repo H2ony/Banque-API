@@ -15,6 +15,7 @@ import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -81,7 +82,7 @@ public class DemandeRepresentation {
      */
     @GetMapping(value = "/{demandeId}")
     public ResponseEntity<?> getDemande(@PathVariable("demandeId") String id) {
-
+        
         return searchDemande(id);
         
     }
@@ -132,22 +133,30 @@ public class DemandeRepresentation {
      */
     @PostMapping
     public ResponseEntity<?> saveDemande(@RequestBody Demande demande, HttpServletRequest req, HttpServletResponse res) {
-        
-        //On génère l'id de la demande et on génère l'état vide
-        demande.setId(UUID.randomUUID().toString());
-        demande.setEtat("");
-        
         HttpHeaders responseHeaders = new HttpHeaders();
         
-        //On demande le token
-        String token = generateToken("toto","theSecret"); 
-
-        demande.setToken(token);
-        Demande saved = irDemande.save(demande);
+        //On controle qu'une demande n'est pas déja en cours
+        if(isPresent(demande)){
         
-        responseHeaders.add(HttpHeaders.AUTHORIZATION, token);
-        responseHeaders.setLocation(linkTo(DemandeRepresentation.class).slash(saved.getId()).toUri());
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+            //On génère l'id de la demande et on génère l'état vide
+            demande.setId(UUID.randomUUID().toString());
+            demande.setEtat("");
+
+            //On demande le token
+            String token = generateToken("toto","theSecret"); 
+
+            demande.setToken(token);
+
+            Demande saved = irDemande.save(demande);
+
+            //On ajoute le token pour que l'utilisateur puisse accèder à sa demande
+            responseHeaders.add(HttpHeaders.AUTHORIZATION, token);
+            responseHeaders.setLocation(linkTo(DemandeRepresentation.class).slash(saved.getId()).toUri());
+            return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        }
+        else{
+            return new ResponseEntity<>(null, responseHeaders, HttpStatus.CONFLICT);
+        }
         
         
        
@@ -325,7 +334,10 @@ public class DemandeRepresentation {
                                 demandeResources.add(demandeToResource(demande, false, statut));
                         }
                         else{
-                            demandeResources.add(demandeToResource(demande, false, statut));
+                            //On affiche les demandes n'ayant pas un statut FIN
+                            if(statut.compareTo("[FIN]") != 0){
+                                demandeResources.add(demandeToResource(demande, false, statut));
+                            }
                         }
                     });
                 
@@ -506,5 +518,27 @@ public class DemandeRepresentation {
        catch(Exception e){
            return false;
        }
+    }
+    
+    /**
+     * Recherche si une demande de crédit est déja présente
+     * @param d
+     * @return 
+     */
+    public boolean isPresent(Demande d){
+        Iterable<Demande> allDemande = irDemande.findAll();
+        
+        for (Iterator  it =allDemande.iterator(); it.hasNext();) {
+            
+            Demande demande = (Demande)(it.next());
+            
+            if(demande.getNom().compareTo(d.getNom())==0 && demande.getPrenom().compareTo(d.getPrenom())==0 && demande.getCredit()==d.getCredit()){
+                return true;
+            } 
+            else{
+                return false;
+            }
+        }
+        return false;  
     }
 }
