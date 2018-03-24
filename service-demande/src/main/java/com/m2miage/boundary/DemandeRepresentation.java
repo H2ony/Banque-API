@@ -11,6 +11,8 @@ import com.m2miage.entity.Demande;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.io.UnsupportedEncodingException;
+import static java.lang.Integer.parseInt;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -110,9 +112,9 @@ public class DemandeRepresentation {
         
     }
     
-    
+
     /**
-     * Retourne les actions pour une demande 
+     * Retourne les actions pour une demande données
      *  GET 
      * @param id
      * @return 
@@ -124,8 +126,64 @@ public class DemandeRepresentation {
         
         return new ResponseEntity<>(ActionRepresentation.actionToResource(d.getActions()),HttpStatus.OK);
     }
+    
+    /**
+     * Retourne une action pour une demande données
+     *  GET 
+     * @param id
+     * @return 
+     */
+    @GetMapping(value = "/{demandeId}/actions/{actionId}")
+    public ResponseEntity<?> getDemandeActions(@PathVariable("demandeId") String idDemande, @PathVariable("actionId") int idAction) {
+        
+        Demande d = irDemande.findOne(idDemande);
+        try{
+            return new ResponseEntity<>(ActionRepresentation.actionToResource(d.findAction(idAction), Boolean.FALSE),HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        
+        
+    }
 
-
+     /**
+     * Retourne une action pour une demande données
+     *  GET 
+     * @param id
+     * @return 
+     */
+    @PutMapping(value = "/{demandeId}/actions/{actionId}")
+    public ResponseEntity<?> updateDemandeActions(@RequestBody Action action, @PathVariable("demandeId") String idDemande, @PathVariable("actionId") int idAction) {
+        
+        //On récupère la demande
+        Demande d = irDemande.findOne(idDemande);
+        Action lastAction = d.returnLastAction();
+        
+        //le try permet de gèrer un id erroné
+        try{
+            //On va rechercher l'action pour effectuer la modification
+            Action a = irAction.findOne(d.findAction(idAction).getId());
+            if(lastAction.getId().compareTo(a.getId())==0){
+                a.setPersonneCharge(action.getPersonneCharge());
+                return new ResponseEntity<>(ActionRepresentation.actionToResource(a, Boolean.FALSE),HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+            
+            
+            
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        
+        
+    }
+    
     /**
      *  POST une nouvelle demande
      * @param demande
@@ -136,7 +194,7 @@ public class DemandeRepresentation {
         HttpHeaders responseHeaders = new HttpHeaders();
         
         //On controle qu'une demande n'est pas déja en cours
-        if(isPresent(demande)){
+        if(!isPresent(demande)){
         
             //On génère l'id de la demande et on génère l'état vide
             demande.setId(UUID.randomUUID().toString());
@@ -243,61 +301,67 @@ public class DemandeRepresentation {
         //On va rechercher l'ancienne demande
         Demande laDemande = irDemande.findOne(demandeId);
 
-        //On récupère la prochaine action qui doit-être présente et la dernière pour set l'état
-        Action nextAction = getNextAction(laDemande);
-        Action previousAction = new Action(-1);
-        
-        if(laDemande.returnLastAction().getNumero()>=0){
-            
-            previousAction = irAction.findOne(laDemande.returnLastAction().getIdAction());
-            
-            //On change son statut à terminé
-            previousAction.setEtat("terminée");
- 
+        if(laDemande != null){
+            //On récupère la prochaine action qui doit-être présente et la dernière pour set l'état
+            Action nextAction = getNextAction(laDemande);
+            Action previousAction = new Action(-1);
+
+            if(laDemande.returnLastAction().getNumero()>=0){
+
+                previousAction = irAction.findOne(laDemande.returnLastAction().getIdAction());
+
+                //On change son statut à terminé
+                previousAction.setEtat("terminée");
+
+            }
+
+            //Si la nouvelle action est bien celle attendue et que la dernière action est terminée, 
+            if(nextAction.compareTo(action)){
+
+
+                //On set l'état de l'action
+                action.setId(UUID.randomUUID().toString());
+                action.setNumero(nextAction.getNumero());
+                action.setDemande(laDemande);
+
+
+                 //Si l'action est une acceptation ou un rejet
+                if(action.getEtat().toLowerCase().compareTo(("acceptée").toLowerCase())==0){
+                   laDemande.setEtat("[ACCEPTATION]"); 
+                }
+
+                //Si l'action est une acceptation ou un rejet
+                if(action.getEtat().toLowerCase().compareTo(("rejetée").toLowerCase())==0){
+                   laDemande.setEtat("[REJET]"); 
+                }
+
+                //On initialise avec le Bon état
+                action.setEtat(nextAction.getEtat());
+
+                //on sauvegarde l'ancienne action et la nouvelle
+                Action saved = irAction.save(action);
+
+
+                //On l'ajoute à la demande 
+                laDemande.addActions(saved);
+
+                //On sauvegarde la demande(Etat à changé)
+                irDemande.save(laDemande);
+
+               if( previousAction.getNumero()>=0){
+                    irAction.save(previousAction);
+                }
+
+                responseHeaders.setLocation(linkTo(DemandeRepresentation.class).slash(saved.getId()).toUri());
+                return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+            }
+            else{
+                return new ResponseEntity<>(null, responseHeaders, HttpStatus.FORBIDDEN);
+            }
         }
-        
-        //Si la nouvelle action est bien celle attendue et que la dernière action est terminée, 
-        if(nextAction.compareTo(action)){
-            
-            
-            //On set l'état de l'action
-            action.setId(UUID.randomUUID().toString());
-            action.setNumero(nextAction.getNumero());
-            action.setDemande(laDemande);
-            
-            
-             //Si l'action est une acceptation ou un rejet
-            if(action.getEtat().toLowerCase().compareTo(("acceptée").toLowerCase())==0){
-               laDemande.setEtat("[ACCEPTATION]"); 
-            }
-            
-            //Si l'action est une acceptation ou un rejet
-            if(action.getEtat().toLowerCase().compareTo(("rejetée").toLowerCase())==0){
-               laDemande.setEtat("[REJET]"); 
-            }
-            
-            //On initialise avec le Bon état
-            action.setEtat(nextAction.getEtat());
-            
-            //on sauvegarde l'ancienne action et la nouvelle
-            Action saved = irAction.save(action);
-            
-                    
-            //On l'ajoute à la demande 
-            laDemande.addActions(saved);
-            
-            //On sauvegarde la demande(Etat à changé)
-            irDemande.save(laDemande);
-            
-           if( previousAction.getNumero()>=0){
-                irAction.save(previousAction);
-            }
-            
-            responseHeaders.setLocation(linkTo(DemandeRepresentation.class).slash(saved.getId()).toUri());
-            return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
-        }
-        else{
-            return new ResponseEntity<>(null, responseHeaders, HttpStatus.FORBIDDEN);
+        else
+        {
+            return new ResponseEntity<>(null, responseHeaders, HttpStatus.NOT_FOUND);
         }
            
     }
@@ -335,7 +399,7 @@ public class DemandeRepresentation {
                         }
                         else{
                             //On affiche les demandes n'ayant pas un statut FIN
-                            if(statut.compareTo("[FIN]") != 0){
+                            if(demande.getEtat().compareTo("[FIN]") != 0){
                                 demandeResources.add(demandeToResource(demande, false, statut));
                             }
                         }
@@ -540,5 +604,12 @@ public class DemandeRepresentation {
             }
         }
         return false;  
+    }
+    
+    public  Claims getToken(String token,HttpServletRequest req) throws UnsupportedEncodingException{
+        Claims claims = Jwts.parser()
+            .setSigningKey("theSecret".getBytes("UTF-8"))
+            .parseClaimsJws(token).getBody();
+        return claims;
     }
 }

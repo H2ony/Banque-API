@@ -1,5 +1,6 @@
 package com.m2miage.boundary;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.m2miage.entity.Action;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 import com.m2miage.entity.Action;
 import com.m2miage.entity.Action;
+import com.m2miage.entity.Demande;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.Link;
@@ -61,6 +65,7 @@ public class ActionRepresentation {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
     
+  
 
     public static Resources<Resource<Action>> actionToResource(Iterable<Action> actions) {
         Link selfLink = linkTo(methodOn(ActionRepresentation.class).getAllAction())

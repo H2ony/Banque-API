@@ -97,7 +97,20 @@ public class Demande {
     public Set<Action> getActions() {
         return actions;
     }
-
+    /**
+     * Retourne une action en fonction de son numéro
+     * @param numero
+     * @return Un null si pas d'action
+     */
+    public Action findAction(int numero) {
+        
+        for (Action a : this.actions) {
+            
+            if(a.getNumero() == numero)
+                    return a;
+        }
+        return null;
+    }
     
     public String getId() {
         return idDemande;
