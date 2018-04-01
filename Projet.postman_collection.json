@@ -1,11 +1,13 @@
 {
 	"id": "6ab1733a-7245-3b13-78a6-9eec871be10a",
+	"owner": "3669290",
 	"name": "Projet",
 	"description": null,
 	"order": [
 		"b633c08e-6079-b360-8fb5-d2fdfc1c0703",
 		"d578de92-d4ba-1000-3173-4934ee462d22",
 		"0b433c1e-7cae-40ca-af55-10e0c4de4c1d",
+		"bf33d2ab-3541-426c-8a0c-ef05ea7b314f",
 		"063b49c8-611f-439f-a45f-cf16eaf0fdbe",
 		"ca8383c2-f930-e8a1-160b-c7e728aca838",
 		"349ab138-1cdf-4a3e-8a1c-11b6a2fab586",
@@ -15,13 +17,21 @@
 		"68e626a8-cf23-b4ff-61b3-1df2555d92d6",
 		"9c77c504-05c0-0b25-34a3-26486b8be68e",
 		"2df504f5-257c-0cb4-9110-721f833a0f8c",
-		"62aafa71-a669-6bd0-6c54-c2b4ad644bed"
+		"62aafa71-a669-6bd0-6c54-c2b4ad644bed",
+		"1ff77d39-03e9-487a-b6d9-609e0d90ff9c",
+		"230b342f-16df-4cc6-83b8-72ed3eae6ef2",
+		"2d371566-199a-4eda-bc45-03890da05641"
 	],
 	"folders": [],
 	"folders_order": [],
 	"timestamp": 1521061774444,
-	"owner": "3669290",
 	"public": false,
+	"lastUpdatedBy": "3669290",
+	"lastRevision": 3536072859,
+	"team": null,
+	"variables": null,
+	"auth": null,
+	"events": null,
 	"requests": [
 		{
 			"id": "063b49c8-611f-439f-a45f-cf16eaf0fdbe",
@@ -58,14 +68,14 @@
 				{
 					"key": "Content-Type",
 					"value": "application/json",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				},
 				{
 					"key": "Authorization",
 					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE2NDM5MjMsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImQ4MjY2ZDY1LWI3YjUtNGJlMy1iN2U2LTEzN2M5OWU4MzRiYiIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.3SBN6xPx9I5e43t5C7gkRGgkH6RJIX2fsVDgYRDDK1A",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				}
 			],
 			"url": "http://localhost:8082/demandes/",
@@ -78,51 +88,126 @@
 			"data": [],
 			"dataMode": "raw",
 			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
+			"currentHelper": null,
+			"helperAttributes": null,
 			"time": 1521806512070,
 			"name": "Add demande",
 			"description": null,
 			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
+			"auth": null,
+			"events": null,
+			"descriptionFormat": null,
+			"variables": null,
 			"rawModeData": "{\n    \"id\":\"1234\",\n    \"nom\": \"Petit\",\n    \"prenom\": \"Jean\",\n    \"adresse\": \"3 rue du docteur Pierrot NANCY\",\n    \"datenaiss\": \"16/07/1992\",\n    \"revenu\": 1500,\n    \"credit\": 20,\n    \"duree\": 3,\n    \"etat\":\"\"\n                \n}"
 		},
 		{
-			"id": "2df504f5-257c-0cb4-9110-721f833a0f8c",
-			"headers": "Content-Type: application/json\n",
+			"id": "1ff77d39-03e9-487a-b6d9-609e0d90ff9c",
+			"folder": null,
+			"name": "GetUneAction",
+			"dataMode": "params",
+			"data": null,
+			"auth": null,
+			"events": null,
+			"rawModeData": null,
+			"descriptionFormat": null,
+			"description": null,
+			"variables": null,
+			"headers": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE5MDY5MDcsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6IjE4MDE1ODFkLTQ5OWQtNGVlMi05ODQxLWZmNTMyMTgyYmY2MSIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.w7uuMnUJ3RbzPN6XAI6YvDLLZQhvz45Y1o8nqXYQ55k\n",
+			"method": "GET",
+			"pathVariables": {},
+			"url": "http://localhost:8082/demandes/d1111a92-eff2-4b47-a4ee-1d1f79d330c0/actions/1",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": null,
+			"helperAttributes": null,
+			"queryParams": [],
 			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE5MDY5MDcsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6IjE4MDE1ODFkLTQ5OWQtNGVlMi05ODQxLWZmNTMyMTgyYmY2MSIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.w7uuMnUJ3RbzPN6XAI6YvDLLZQhvz45Y1o8nqXYQ55k",
+					"enabled": true,
+					"description": ""
+				}
+			],
+			"pathVariableData": [],
+			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a"
+		},
+		{
+			"id": "230b342f-16df-4cc6-83b8-72ed3eae6ef2",
+			"folder": null,
+			"name": "PutUneAction",
+			"dataMode": "raw",
+			"data": [],
+			"auth": null,
+			"events": null,
+			"descriptionFormat": null,
+			"description": null,
+			"variables": null,
+			"headers": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE5MDY5MDcsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6IjE4MDE1ODFkLTQ5OWQtNGVlMi05ODQxLWZmNTMyMTgyYmY2MSIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.w7uuMnUJ3RbzPN6XAI6YvDLLZQhvz45Y1o8nqXYQ55k\nContent-Type: application/json\n",
+			"method": "PUT",
+			"pathVariables": {},
+			"url": "http://localhost:8082/demandes/d1111a92-eff2-4b47-a4ee-1d1f79d330c0/actions/1",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": null,
+			"helperAttributes": null,
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE5MDY5MDcsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6IjE4MDE1ODFkLTQ5OWQtNGVlMi05ODQxLWZmNTMyMTgyYmY2MSIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.w7uuMnUJ3RbzPN6XAI6YvDLLZQhvz45Y1o8nqXYQ55k",
+					"enabled": true,
+					"description": ""
+				},
 				{
 					"key": "Content-Type",
 					"value": "application/json",
-					"description": "",
+					"enabled": true,
+					"description": ""
+				}
+			],
+			"pathVariableData": [],
+			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
+			"rawModeData": "{\r\n      \"personnecharge\" : \"Michel\"\r\n}"
+		},
+		{
+			"folder": null,
+			"id": "2d371566-199a-4eda-bc45-03890da05641",
+			"name": "Suppression de la demande",
+			"dataMode": "params",
+			"data": null,
+			"auth": null,
+			"events": null,
+			"rawModeData": null,
+			"descriptionFormat": null,
+			"description": null,
+			"variables": null,
+			"headers": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE3OTg4MTUsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImU1YzVhNjZkLTk0YjEtNGM2OS05Njc3LWI5YmUzNDAyNGE1OCIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.guORHBwMFg6hZC32CQpRTQhqBnfLzuceXSP6LRfY0gE\n",
+			"method": "DELETE",
+			"pathVariables": {},
+			"url": "http://localhost:8082/demandes/d1111a92-eff2-4b47-a4ee-1d1f79d330c0",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": null,
+			"helperAttributes": null,
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE3OTg4MTUsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImU1YzVhNjZkLTk0YjEtNGM2OS05Njc3LWI5YmUzNDAyNGE1OCIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.guORHBwMFg6hZC32CQpRTQhqBnfLzuceXSP6LRfY0gE",
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8082/demandes/1234/actions",
-			"queryParams": [],
-			"preRequestScript": null,
-			"pathVariables": {},
 			"pathVariableData": [],
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1521799543989,
-			"name": "de [ETUDE] à [DECISION]",
-			"description": "",
-			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
-			"responses": [],
-			"rawModeData": "{\r\n      \"nom\" : \"Décision en attente de validation\",\r\n      \"personnecharge\" : \"Jacki\",\r\n      \"etat\" : \"En cours\"\r\n}"
+			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a"
 		},
 		{
-			"id": "349ab138-1cdf-4a3e-8a1c-11b6a2fab586",
+			"id": "2df504f5-257c-0cb4-9110-721f833a0f8c",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE2NDM5MjMsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImQ4MjY2ZDY1LWI3YjUtNGJlMy1iN2U2LTEzN2M5OWU4MzRiYiIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.3SBN6xPx9I5e43t5C7gkRGgkH6RJIX2fsVDgYRDDK1A\n",
 			"headerData": [
 				{
 					"key": "Content-Type",
 					"value": "application/json",
-					"description": "",
 					"enabled": true
 				},
 				{
@@ -132,7 +217,47 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8082/demandes/8df9a7d8-fcf3-42fb-8d8a-25bae8e5541f",
+			"url": "http://localhost:8082/demandes/d1111a92-eff2-4b47-a4ee-1d1f79d330c0/actions",
+			"folder": null,
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": null,
+			"helperAttributes": null,
+			"time": 1521799543989,
+			"name": "de [ETUDE] à [DECISION]",
+			"description": null,
+			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
+			"responses": [],
+			"auth": null,
+			"events": null,
+			"descriptionFormat": "html",
+			"variables": null,
+			"rawModeData": "{\r\n      \"nom\" : \"Décision en attente de validation\",\r\n      \"personnecharge\" : \"Lucas\",\r\n      \"etat\" : \"En cours\"\r\n}"
+		},
+		{
+			"id": "349ab138-1cdf-4a3e-8a1c-11b6a2fab586",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE2NDM5MjMsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImQ4MjY2ZDY1LWI3YjUtNGJlMy1iN2U2LTEzN2M5OWU4MzRiYiIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.3SBN6xPx9I5e43t5C7gkRGgkH6RJIX2fsVDgYRDDK1A\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"enabled": true,
+					"description": ""
+				},
+				{
+					"key": "Authorization",
+					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE2NDM5MjMsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImQ4MjY2ZDY1LWI3YjUtNGJlMy1iN2U2LTEzN2M5OWU4MzRiYiIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.3SBN6xPx9I5e43t5C7gkRGgkH6RJIX2fsVDgYRDDK1A",
+					"enabled": true,
+					"description": ""
+				}
+			],
+			"url": "http://localhost:8082/demandes/d1111a92-eff2-4b47-a4ee-1d1f79d330c0",
 			"folder": null,
 			"queryParams": [],
 			"preRequestScript": null,
@@ -142,13 +267,17 @@
 			"data": [],
 			"dataMode": "raw",
 			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
+			"currentHelper": null,
+			"helperAttributes": null,
 			"time": 1521806504360,
 			"name": "Modification d'une demande",
 			"description": null,
 			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
-			"rawModeData": "{\n                \"nom\": \"bbbbbbbbbbbbbbbbbbbb\",\n                \"prenom\": \"bbbbbbbbbbbbbbbbbbbbbbbb\",\n                \"adresse\": \"Nancy\",\n                \"datenaiss\": \"02/05/1980\",\n                \"revenu\": 1542.20,\n                \"credit\": 10.20,\n                \"duree\": 3,\n                \"etat\": \"\"\n}\n               "
+			"auth": null,
+			"events": null,
+			"descriptionFormat": null,
+			"variables": null,
+			"rawModeData": "{\n                \"nom\": \"Jean-Pierre\",\n                \"prenom\": \"Pertinent\",\n                \"adresse\": \"5 Rue du savoir à Nancy\",\n                \"datenaiss\": \"02/05/1980\",\n                \"revenu\": 1542.20,\n                \"credit\": 10.20,\n                \"duree\": 3,\n                \"etat\": \"\"\n}\n               "
 		},
 		{
 			"id": "36c64c64-0c32-f778-2907-e6b2093bf035",
@@ -157,17 +286,17 @@
 				{
 					"key": "Content-Type",
 					"value": "application/json",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				},
 				{
 					"key": "Authorization",
 					"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b3RvIiwiZXhwIjoxNTIxODE3MTE0fQ.DPJT2u2Cl5ouViMn34_z8hIjbm_3Nxv9czNo-BnPNneH919pC-rHnnKCjeOouPbHwbAcjcCQ594Nh1pt0BpdKg",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				}
 			],
-			"url": "http://localhost:8082/demandes/externe/b97176a3-3517-40c9-ba5b-cfb21c7c3951",
+			"url": "http://localhost:8082/demandes/externe/d1111a92-eff2-4b47-a4ee-1d1f79d330c0",
 			"folder": null,
 			"queryParams": [],
 			"preRequestScript": null,
@@ -177,13 +306,17 @@
 			"data": [],
 			"dataMode": "raw",
 			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
+			"currentHelper": null,
+			"helperAttributes": null,
 			"time": 1521805227336,
 			"name": "Modification d'une demande externe",
 			"description": null,
 			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
-			"rawModeData": "{\n                \"nom\": \"bbbbbbbbbbbbbbbbbbbb\",\n                \"prenom\": \"bbbbbbbbbbbbbbbbbbbbbbbb\",\n                \"adresse\": \"Nancy\",\n                \"datenaiss\": \"02/05/1980\",\n                \"revenu\": 1542.20,\n                \"credit\": 10.20,\n                \"duree\": 3,\n                \"etat\": \"\"\n}\n               "
+			"auth": null,
+			"events": null,
+			"descriptionFormat": null,
+			"variables": null,
+			"rawModeData": "{\n                \"nom\": \"Jean-Pierre\",\n                \"prenom\": \"Pertinent\",\n                \"adresse\": \"5 Rue du savoir à Nancy\",\n                \"datenaiss\": \"02/05/1980\",\n                \"revenu\": 1542.20,\n                \"credit\": 10.20,\n                \"duree\": 3,\n                \"etat\": \"\"\n}\n               "
 		},
 		{
 			"id": "4705fbbd-8e59-6df2-6dde-ff4424d14c5d",
@@ -192,13 +325,11 @@
 				{
 					"key": "Content-Type",
 					"value": "application/x-www-form-urlencoded",
-					"description": "",
 					"enabled": true
 				},
 				{
 					"key": "Authorization",
 					"value": "Basic aHRtbDU6dGhlc2VjcmV0",
-					"description": "",
 					"enabled": true
 				}
 			],
@@ -213,63 +344,61 @@
 				{
 					"key": "password",
 					"value": "azerty",
-					"description": "",
 					"type": "text",
 					"enabled": true
 				},
 				{
 					"key": "username",
 					"value": "toto",
-					"description": "",
 					"type": "text",
 					"enabled": true
 				},
 				{
 					"key": "grant_type",
 					"value": "password",
-					"description": "",
 					"type": "text",
 					"enabled": true
 				},
 				{
 					"key": "scope",
 					"value": "read",
-					"description": "",
 					"type": "text",
 					"enabled": true
 				},
 				{
 					"key": "client_id",
 					"value": "html5",
-					"description": "",
 					"type": "text",
 					"enabled": true
 				},
 				{
 					"key": "client_sercret",
 					"value": "thesecret",
-					"description": "",
 					"type": "text",
 					"enabled": true
 				},
 				{
 					"key": "scope",
 					"value": "write",
-					"description": "",
 					"type": "text",
 					"enabled": true
 				}
 			],
 			"dataMode": "urlencoded",
-			"name": "http://localhost:9191/uaa/oauth/token",
-			"description": "",
+			"name": "Authentification OAUTH2.0",
+			"description": null,
 			"descriptionFormat": "html",
 			"time": 1521465678815,
 			"version": 2,
 			"responses": [],
 			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {}
+			"currentHelper": null,
+			"helperAttributes": null,
+			"folder": null,
+			"auth": null,
+			"events": null,
+			"rawModeData": null,
+			"variables": null
 		},
 		{
 			"id": "60ad0209-73d1-7081-c839-6f57a77904e8",
@@ -342,17 +471,18 @@
 				{
 					"key": "Content-Type",
 					"value": "application/json",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				},
 				{
 					"key": "Authorization",
 					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE3OTg4MTUsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImU1YzVhNjZkLTk0YjEtNGM2OS05Njc3LWI5YmUzNDAyNGE1OCIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.guORHBwMFg6hZC32CQpRTQhqBnfLzuceXSP6LRfY0gE",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				}
 			],
 			"url": "http://localhost:8082/demandes/1234/actions",
+			"folder": null,
 			"queryParams": [],
 			"preRequestScript": null,
 			"pathVariables": {},
@@ -361,14 +491,18 @@
 			"data": [],
 			"dataMode": "raw",
 			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
+			"currentHelper": null,
+			"helperAttributes": null,
 			"time": 1521799627444,
 			"name": "[DECISION] à [FIN]",
-			"description": "",
+			"description": null,
 			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
 			"responses": [],
-			"rawModeData": "{\r\n      \"nom\" : \"Notification\",\r\n      \"personnecharge\" : \"Jacki\",\r\n      \"etat\" : \"rejetée\"\r\n}"
+			"auth": null,
+			"events": null,
+			"descriptionFormat": "html",
+			"variables": null,
+			"rawModeData": "{\r\n      \"nom\" : \"Notification\",\r\n      \"personnecharge\" : \"Marine\",\r\n      \"etat\" : \"rejetée\"\r\n}"
 		},
 		{
 			"id": "68e626a8-cf23-b4ff-61b3-1df2555d92d6",
@@ -377,17 +511,16 @@
 				{
 					"key": "Content-Type",
 					"value": "application/json",
-					"description": "",
 					"enabled": true
 				},
 				{
 					"key": "Authorization",
 					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE3OTg4MTUsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImU1YzVhNjZkLTk0YjEtNGM2OS05Njc3LWI5YmUzNDAyNGE1OCIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.guORHBwMFg6hZC32CQpRTQhqBnfLzuceXSP6LRfY0gE",
-					"description": "",
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8082/demandes/1234/actions",
+			"url": "http://localhost:8082/demandes/d1111a92-eff2-4b47-a4ee-1d1f79d330c0/actions",
+			"folder": null,
 			"queryParams": [],
 			"preRequestScript": null,
 			"pathVariables": {},
@@ -396,14 +529,18 @@
 			"data": [],
 			"dataMode": "raw",
 			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
+			"currentHelper": null,
+			"helperAttributes": null,
 			"time": 1521804099185,
 			"name": "Valider demande",
-			"description": "",
+			"description": null,
 			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
 			"responses": [],
-			"rawModeData": "{\r\n \r\n      \"nom\" : \"En attente d'attribution\",\r\n      \"personnecharge\" : \"Jacki\",\r\n      \"etat\" : \"En cours\"\r\n}"
+			"auth": null,
+			"events": null,
+			"descriptionFormat": null,
+			"variables": null,
+			"rawModeData": "{\r\n \r\n      \"nom\" : \"En attente d'attribution\",\r\n      \"personnecharge\" : \"Jeanne\",\r\n      \"etat\" : \"En cours\"\r\n}"
 		},
 		{
 			"id": "9c77c504-05c0-0b25-34a3-26486b8be68e",
@@ -412,17 +549,18 @@
 				{
 					"key": "Content-Type",
 					"value": "application/json",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				},
 				{
 					"key": "Authorization",
 					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE2NDM5MjMsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImQ4MjY2ZDY1LWI3YjUtNGJlMy1iN2U2LTEzN2M5OWU4MzRiYiIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.3SBN6xPx9I5e43t5C7gkRGgkH6RJIX2fsVDgYRDDK1A",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				}
 			],
 			"url": "http://localhost:8082/demandes/060ee2be-9657-43d8-b775-927137560195/actions",
+			"folder": null,
 			"queryParams": [],
 			"preRequestScript": null,
 			"pathVariables": {},
@@ -431,14 +569,18 @@
 			"data": [],
 			"dataMode": "raw",
 			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
+			"currentHelper": null,
+			"helperAttributes": null,
 			"time": 1521804330460,
 			"name": "de [DEBUT] à [ETUDE]",
-			"description": "",
+			"description": null,
 			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
 			"responses": [],
-			"rawModeData": "{\r\n \r\n      \"nom\" : \"Revue en cours\",\r\n      \"personnecharge\" : \"Jacki\",\r\n      \"etat\" : \"En cours\"\r\n}"
+			"auth": null,
+			"events": null,
+			"descriptionFormat": "html",
+			"variables": null,
+			"rawModeData": "{\r\n \r\n      \"nom\" : \"Revue en cours\",\r\n      \"personnecharge\" : \"Harry\",\r\n      \"etat\" : \"En cours\"\r\n}"
 		},
 		{
 			"id": "b633c08e-6079-b360-8fb5-d2fdfc1c0703",
@@ -447,14 +589,14 @@
 				{
 					"key": "Content-Type",
 					"value": "application/json",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				},
 				{
 					"key": "Authorization",
 					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE2NDM5MjMsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImQ4MjY2ZDY1LWI3YjUtNGJlMy1iN2U2LTEzN2M5OWU4MzRiYiIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.3SBN6xPx9I5e43t5C7gkRGgkH6RJIX2fsVDgYRDDK1A",
-					"description": "",
-					"enabled": true
+					"enabled": true,
+					"description": ""
 				}
 			],
 			"url": "http://localhost:8082/demandes/",
@@ -468,14 +610,56 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
+			"currentHelper": null,
+			"helperAttributes": null,
 			"time": 1521806507066,
 			"name": "Get demandes",
 			"description": null,
 			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
 			"responses": [],
+			"auth": null,
+			"events": null,
+			"descriptionFormat": "html",
+			"variables": null,
 			"rawModeData": "  { \r\n\r\n    \"nom\" : \"HOYET\",\r\n      \"prenom\" : \"Anthony\",\r\n      \"adresse\" : \"Nancy\",\r\n      \"datenaiss\" : \"16/07/1992\",\r\n      \"revenu\" : 150,\r\n      \"credit\" : 20.0,\r\n      \"duree\" : 3\r\n  }\r\n \r\n"
+		},
+		{
+			"folder": null,
+			"id": "bf33d2ab-3541-426c-8a0c-ef05ea7b314f",
+			"name": "Add demandeDoublon",
+			"dataMode": "raw",
+			"data": [],
+			"auth": null,
+			"events": null,
+			"descriptionFormat": null,
+			"description": null,
+			"variables": null,
+			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE2NDM5MjMsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImQ4MjY2ZDY1LWI3YjUtNGJlMy1iN2U2LTEzN2M5OWU4MzRiYiIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.3SBN6xPx9I5e43t5C7gkRGgkH6RJIX2fsVDgYRDDK1A\n",
+			"method": "POST",
+			"pathVariables": {},
+			"url": "http://localhost:8082/demandes/",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": null,
+			"helperAttributes": null,
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI3MjE2NDM5MjMsInVzZXJfbmFtZSI6InRvdG8iLCJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiUk9MRV9VU0VSIl0sImp0aSI6ImQ4MjY2ZDY1LWI3YjUtNGJlMy1iN2U2LTEzN2M5OWU4MzRiYiIsImNsaWVudF9pZCI6Imh0bWw1Iiwic2NvcGUiOlsicmVhZCJdfQ.3SBN6xPx9I5e43t5C7gkRGgkH6RJIX2fsVDgYRDDK1A",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariableData": [],
+			"collectionId": "6ab1733a-7245-3b13-78a6-9eec871be10a",
+			"rawModeData": "{\n    \"id\":\"1234\",\n    \"nom\": \"Petit\",\n    \"prenom\": \"Jean\",\n    \"adresse\": \"3 rue du docteur Pierrot NANCY\",\n    \"datenaiss\": \"16/07/1992\",\n    \"revenu\": 1500,\n    \"credit\": 20,\n    \"duree\": 3,\n    \"etat\":\"\"\n                \n}"
 		},
 		{
 			"id": "ca8383c2-f930-e8a1-160b-c7e728aca838",

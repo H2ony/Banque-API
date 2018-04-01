@@ -541,7 +541,7 @@ public class DemandeRepresentation {
         
         //Si on peut valider, on peut modifier la demande
         //si on peut attribuer, on peut encore modifier, mais après le statut ne le permet plus 
-        if(etat.compareTo("[DEBUT]") == 0 || etat.compareTo("[ETUDE]") == 0 || etat.compareTo("") == 0){
+        if(etat.compareTo("[DEBUT]") == 0 || etat.compareTo("") == 0){
             
             demande.setEtat(etat);
             demande.setToken(token);
