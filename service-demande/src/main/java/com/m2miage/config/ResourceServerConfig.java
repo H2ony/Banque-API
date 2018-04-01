@@ -24,9 +24,9 @@ public class ResourceServerConfig {
                     .authenticationEntryPoint(myEntryPoint)
                     .and()
                     .authorizeRequests()
-                    //Autorisation pour les intervenants externe de visualiser leur demande
+                    //Autorisation pour les intervenants externes de visualiser leurs demandes
                     .antMatchers(HttpMethod.GET, "/demandes/externe/{\\.*}").permitAll()
-                    //Autorisation pour les externe de modifier leur demande
+                    //Autorisation pour les externes de modifier leur demande
                     .antMatchers(HttpMethod.PUT, "/demandes/externe/{\\.*}").permitAll()
                     .anyRequest().authenticated();
                     

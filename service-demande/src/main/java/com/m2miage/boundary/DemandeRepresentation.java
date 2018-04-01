@@ -167,6 +167,7 @@ public class DemandeRepresentation {
             Action a = irAction.findOne(d.findAction(idAction).getId());
             if(lastAction.getId().compareTo(a.getId())==0){
                 a.setPersonneCharge(action.getPersonneCharge());
+                irAction.save(a);
                 return new ResponseEntity<>(ActionRepresentation.actionToResource(a, Boolean.FALSE),HttpStatus.OK);
             }
             else{
@@ -323,6 +324,7 @@ public class DemandeRepresentation {
                 action.setId(UUID.randomUUID().toString());
                 action.setNumero(nextAction.getNumero());
                 action.setDemande(laDemande);
+                action.setDate(nextAction.getDate());
 
 
                  //Si l'action est une acceptation ou un rejet
@@ -548,13 +550,7 @@ public class DemandeRepresentation {
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
         else{
-            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
-            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
-            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
-            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
-            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
-            System.out.println("FOOOOOOOOOOOOOOOORNIDEEEEEEEEEEEEEEEEEN");
-            
+           
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
